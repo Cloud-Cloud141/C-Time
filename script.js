@@ -20,32 +20,6 @@ async function leaveFullscreen() {
     } catch (e) {}
 }
 
-// Tasten-Events
-document.addEventListener('keydown', (ev) => {
-    const key = ev.key.toLowerCase();
-    
-    if (key === 'b' && !isTyping()) {
-        if (!document.fullscreenElement) {
-            exitAllowed = false;
-            enterFullscreen();
-        } else {
-            exitAllowed = true;
-            leaveFullscreen();
-        }
-    }
-
-    if (ev.key === 'Escape' && !exitAllowed) {
-        ev.preventDefault();
-        setTimeout(enterFullscreen, 50);
-    }
-}, true);
-
-document.addEventListener('fullscreenchange', () => {
-    if (!document.fullscreenElement && !exitAllowed) {
-        enterFullscreen();
-    }
-});
-
 // --- ZEICHEN-FUNKTIONEN ---
 function drawHand(ctx, angle, length, width, color) {
     ctx.beginPath();
@@ -73,14 +47,12 @@ function updateMainClock() {
 
     mainCtx.clearRect(0, 0, 400, 400);
     
-    // Zifferblatt Rand
     mainCtx.beginPath();
     mainCtx.arc(200, 200, 190, 0, 2 * Math.PI);
     mainCtx.strokeStyle = 'rgba(255,255,255,0.8)';
     mainCtx.lineWidth = 3;
     mainCtx.stroke();
 
-    // Zahlen
     mainCtx.fillStyle = 'rgba(255,255,255,0.8)';
     mainCtx.font = 'bold 20px Arial';
     mainCtx.textAlign = 'center';
@@ -101,9 +73,25 @@ function updateMainClock() {
 }
 setInterval(updateMainClock, 16);
 
-// --- OVERLAYS & SCHNEE ---
+// --- VIDEO EASTER EGG LOGIK ---
+const videoOverlay = document.getElementById('videoOverlay');
+const videoElement = document.getElementById('easterEggVideo');
+
+function toggleVideo() {
+    if (!videoOverlay || !videoElement) return;
+    if (videoOverlay.classList.contains('visible')) {
+        videoElement.pause();
+        videoElement.currentTime = 0;
+        videoOverlay.classList.remove('visible');
+    } else {
+        videoOverlay.classList.add('visible');
+        videoElement.play().catch(e => console.log("Klick nötig für Ton/Video."));
+        videoElement.onended = () => toggleVideo();
+    }
+}
+
+// --- OVERLAYS & SCHNEE & TASTEN (Zentraler Listener) ---
 (function(){
-    // Overlays dynamisch erstellen
     const aOverlay = document.createElement('div');
     aOverlay.className = 'clockOverlay';
     aOverlay.innerHTML = `<div class="clockContainer"><canvas id="aCanvasO" width="400" height="400" class="analogCanvas"></canvas></div>`;
@@ -117,37 +105,71 @@ setInterval(updateMainClock, 16);
     const aCtxO = document.getElementById('aCanvasO').getContext('2d');
     let aT = null, qT = null, snowing = false, sInt = null;
 
-    document.addEventListener('keydown', (e) => {
-        if(isTyping()) return;
-        const k = e.key.toLowerCase();
-        
-        if(k === 'z'){
-            if(aT) { clearInterval(aT); aT=null; aOverlay.classList.remove('visible'); }
-            else { aOverlay.classList.add('visible'); aT=setInterval(() => {
-                const n = new Date();
-                const s = n.getSeconds() + n.getMilliseconds()/1000;
-                const m = n.getMinutes() + s/60;
-                const h = (n.getHours()%12) + m/60;
-                aCtxO.clearRect(0,0,400,400);
-                aCtxO.strokeStyle='white'; aCtxO.lineWidth=2;
-                aCtxO.beginPath(); aCtxO.arc(200,200,190,0,7); aCtxO.stroke();
-                drawHand(aCtxO, h*Math.PI/6 - 1.57, 100, 6, 'white');
-                drawHand(aCtxO, m*Math.PI/30 - 1.57, 140, 4, 'white');
-                drawHand(aCtxO, s*Math.PI/30 - 1.57, 160, 2, '#ff6b6b');
-            }, 16); }
+    // ALLE Tasten werden hier verarbeitet
+    document.addEventListener('keydown', (ev) => {
+        if (isTyping()) return;
+        const key = ev.key.toLowerCase();
+
+        // 1. Fullscreen / Beenden (B)
+        if (key === 'b') {
+            if (!document.fullscreenElement) {
+                exitAllowed = false;
+                enterFullscreen();
+            } else {
+                exitAllowed = true;
+                leaveFullscreen();
+            }
         }
-        if(k === 'q'){
-            if(qT) { clearInterval(qT); qT=null; qOverlay.classList.remove('visible'); }
-            else { qOverlay.classList.add('visible'); qT=setInterval(() => {
-                document.getElementById('dOnlyEl').textContent = new Date().toLocaleTimeString();
-            }, 100); }
+
+        // 2. Escape-Schutz
+        if (ev.key === 'Escape' && !exitAllowed) {
+            ev.preventDefault();
+            setTimeout(enterFullscreen, 50);
         }
-        if(k === 'f') {
+
+        // 3. Video Egg (S)
+        if (key === 's') {
+            toggleVideo();
+        }
+
+        // 4. Analog Overlay (Z)
+        if (key === 'z') {
+            if (aT) { clearInterval(aT); aT = null; aOverlay.classList.remove('visible'); }
+            else { 
+                aOverlay.classList.add('visible'); 
+                aT = setInterval(() => {
+                    const n = new Date();
+                    const s = n.getSeconds() + n.getMilliseconds()/1000;
+                    const m = n.getMinutes() + s/60;
+                    const h = (n.getHours()%12) + m/60;
+                    aCtxO.clearRect(0,0,400,400);
+                    aCtxO.strokeStyle='white'; aCtxO.lineWidth=2;
+                    aCtxO.beginPath(); aCtxO.arc(200,200,190,0,7); aCtxO.stroke();
+                    drawHand(aCtxO, h*Math.PI/6 - 1.57, 100, 6, 'white');
+                    drawHand(aCtxO, m*Math.PI/30 - 1.57, 140, 4, 'white');
+                    drawHand(aCtxO, s*Math.PI/30 - 1.57, 160, 2, '#ff6b6b');
+                }, 16); 
+            }
+        }
+
+        // 5. Digital Overlay (Q)
+        if (key === 'q') {
+            if (qT) { clearInterval(qT); qT = null; qOverlay.classList.remove('visible'); }
+            else { 
+                qOverlay.classList.add('visible'); 
+                qT = setInterval(() => {
+                    document.getElementById('dOnlyEl').textContent = new Date().toLocaleTimeString();
+                }, 100); 
+            }
+        }
+
+        // 6. Schnee (F)
+        if (key === 'f') {
             snowing = !snowing;
-            if(snowing) sInt = setInterval(createSnowflake, 40);
+            if (snowing) sInt = setInterval(createSnowflake, 40);
             else clearInterval(sInt);
         }
-    });
+    }, true);
 
     function createSnowflake() {
         const s = document.createElement('div');
@@ -161,3 +183,9 @@ setInterval(updateMainClock, 16);
         setTimeout(() => s.remove(), d*1000);
     }
 })();
+
+document.addEventListener('fullscreenchange', () => {
+    if (!document.fullscreenElement && !exitAllowed) {
+        enterFullscreen();
+    }
+});
