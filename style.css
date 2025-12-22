@@ -93,4 +93,25 @@ canvas.analogCanvas {
 
 @keyframes fall { 
     to { transform: translateY(100vh) rotate(360deg); } 
+}.video-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #000;
+    z-index: 10005; /* Über den Uhren-Overlays */
+    display: none; /* Standardmäßig versteckt */
+    align-items: center;
+    justify-content: center;
+}
+
+.video-overlay.visible {
+    display: flex;
+}
+
+#easterEggVideo {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
 }
