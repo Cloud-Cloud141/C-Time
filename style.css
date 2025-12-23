@@ -67,6 +67,7 @@ body {
     text-shadow: 0 0 5px #fff;
     animation: fall linear forwards;
 }
+/*DA STEHT ETWAS DAMIT ICH ES SPEICHERN KANN  */
 
 @keyframes fall {
     to { transform: translateY(110vh) rotate(360deg); }
