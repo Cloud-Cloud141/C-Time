@@ -6,7 +6,6 @@ body {
     animation: auroraBG 20s ease infinite;
     font-family: 'Poppins', sans-serif;
     height: 100vh;
-    width: 100vw;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -49,9 +48,8 @@ body {
     max-width: 85vw;
     max-height: 85vh;
     border-radius: 50%;
-    /* Bunter Rahmen-Glow */
     border: 1vh solid transparent;
-    background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), 
+    background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), 
                       conic-gradient(from 0deg, #d4af37, #ff4757, #2ecc71, #3498db, #d4af37);
     background-origin: border-box;
     background-clip: content-box, border-box;
@@ -86,8 +84,8 @@ body {
 
 .video-overlay.visible { display: flex; }
 
-#easterEggVideo { width: 80%; height: 80%; border: 2px solid #d4af37; }
+#easterEggVideo { width: 85%; height: 80%; border: 2px solid #d4af37; }
 
-.close-hint { margin-top: 20px; color: #aaa; font-size: 1.2rem; }
+.close-hint { margin-top: 20px; color: #aaa; }
 
-.version { position: fixed; bottom: 10px; right: 10px; opacity: 0.3; font-size: 0.8rem; }
+.version { position: fixed; bottom: 10px; right: 10px; opacity: 0.3; font-size: 0.7rem; }
