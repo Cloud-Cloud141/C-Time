@@ -7,20 +7,6 @@ const iframe = document.getElementById('easterEggVideo');
 let exitAllowed = false;
 let snowing = true;
 
-// --- VOLLBILD ---
-async function toggleFullscreen() {
-    try {
-        if (!document.fullscreenElement) {
-            exitAllowed = false;
-            await document.documentElement.requestFullscreen();
-        } else {
-            exitAllowed = true;
-            await document.exitFullscreen();
-        }
-    } catch (e) {}
-}
-
-// --- ZEICHNEN ---
 function drawHand(ctx, center, angle, length, width, color) {
     ctx.beginPath();
     ctx.strokeStyle = color;
@@ -50,17 +36,17 @@ function updateClock() {
 
     mainCtx.clearRect(0, 0, size, size);
 
-    // Zahlen
+    // Ziffern zeichnen
     mainCtx.fillStyle = "white";
     mainCtx.font = `bold ${size * 0.08}px Arial`;
     mainCtx.textAlign = "center";
     mainCtx.textBaseline = "middle";
     for (let i = 1; i <= 12; i++) {
         const ang = (i - 3) * (Math.PI / 6);
-        mainCtx.fillText(i, center + (radius * 0.8) * Math.cos(ang), center + (radius * 0.8) * Math.sin(ang));
+        mainCtx.fillText(i, center + (radius * 0.82) * Math.cos(ang), center + (radius * 0.82) * Math.sin(ang));
     }
 
-    // Zeiger berechnen
+    // Zeit für Zeiger
     const s = now.getSeconds() + now.getMilliseconds() / 1000;
     const m = now.getMinutes() + s / 60;
     const h = (now.getHours() % 12) + m / 60;
@@ -69,7 +55,7 @@ function updateClock() {
     drawHand(mainCtx, center, m * (Math.PI / 30) - Math.PI / 2, radius * 0.75, size * 0.015, '#f3cf7a'); // Minute
     drawHand(mainCtx, center, s * (Math.PI / 30) - Math.PI / 2, radius * 0.85, size * 0.006, '#ff4757'); // Sekunde
 
-    // Punkt Mitte
+    // Mittelpunkt
     mainCtx.beginPath();
     mainCtx.arc(center, center, size * 0.02, 0, Math.PI * 2);
     mainCtx.fillStyle = "#d4af37";
@@ -78,7 +64,6 @@ function updateClock() {
     requestAnimationFrame(updateClock);
 }
 
-// --- SCHNEE ---
 function createSnowflake() {
     if (!snowing) return;
     const s = document.createElement('div');
@@ -92,12 +77,16 @@ function createSnowflake() {
     setTimeout(() => s.remove(), duration * 1000);
 }
 
-// --- EVENTS ---
-document.querySelector('.clock-container').addEventListener('click', toggleFullscreen);
+// Fullscreen für TV/Handy bei Klick
+document.querySelector('.clock-container').addEventListener('click', async () => {
+    if (!document.fullscreenElement) {
+        await document.documentElement.requestFullscreen().catch(e => {});
+    }
+});
 
+// Tastensteuerung (PC/Konsole)
 document.addEventListener('keydown', (e) => {
     const key = e.key.toLowerCase();
-    if (key === 'b') toggleFullscreen();
     if (key === 'f') snowing = !snowing;
     if (key === 's') {
         videoOverlay.classList.toggle('visible');
