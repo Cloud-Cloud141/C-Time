@@ -20,24 +20,20 @@ async function leaveFullscreen() {
     } catch (e) {}
 }
 
-// --- ZEICHEN-FUNKTIONEN ---
-function drawHand(ctx, angle, length, width, color) {
-    ctx.beginPath();
-    ctx.strokeStyle = color;
-    ctx.lineWidth = width;
-    ctx.lineCap = "round";
-    ctx.moveTo(200, 200);
-    ctx.lineTo(200 + length * Math.cos(angle), 200 + length * Math.sin(angle));
-    ctx.stroke();
-}
-
-// --- HAUPTUHR ---
-const mainCanvas = document.getElementById('analogClock');
-const mainCtx = mainCanvas.getContext('2d');
-const digitalTimeEl = document.getElementById('digitalTime');
-
 function updateMainClock() {
     const now = new Date();
+    
+    // Automatische Anpassung der internen Auflösung an die CSS-Größe
+    const rect = mainCanvas.getBoundingClientRect();
+    if (mainCanvas.width !== rect.width || mainCanvas.height !== rect.height) {
+        mainCanvas.width = rect.width;
+        mainCanvas.height = rect.height;
+    }
+
+    const size = mainCanvas.width;
+    const center = size / 2;
+    const radius = size * 0.475; // Skaliert den Radius mit der Größe
+
     const ms = now.getMilliseconds();
     const s = now.getSeconds() + ms / 1000;
     const m = now.getMinutes() + s / 60;
@@ -45,31 +41,46 @@ function updateMainClock() {
 
     digitalTimeEl.textContent = now.toLocaleTimeString('de-DE');
 
-    mainCtx.clearRect(0, 0, 400, 400);
+    mainCtx.clearRect(0, 0, size, size);
     
+    // Zifferblatt Rand (benutzt jetzt 'center' und 'radius')
     mainCtx.beginPath();
-    mainCtx.arc(200, 200, 190, 0, 2 * Math.PI);
+    mainCtx.arc(center, center, radius, 0, 2 * Math.PI);
     mainCtx.strokeStyle = 'rgba(255,255,255,0.8)';
-    mainCtx.lineWidth = 3;
+    mainCtx.lineWidth = size * 0.01; // Linienstärke skaliert mit
     mainCtx.stroke();
 
+    // Zahlen skaliert zeichnen
     mainCtx.fillStyle = 'rgba(255,255,255,0.8)';
-    mainCtx.font = 'bold 20px Arial';
+    mainCtx.font = `bold ${size * 0.06}px Arial`; // Schriftgröße skaliert mit
     mainCtx.textAlign = 'center';
     mainCtx.textBaseline = 'middle';
     for (let i = 1; i <= 12; i++) {
         const ang = (i - 3) * (Math.PI / 6);
-        mainCtx.fillText(i, 200 + 160 * Math.cos(ang), 200 + 160 * Math.sin(ang));
+        mainCtx.fillText(i, center + (radius * 0.85) * Math.cos(ang), center + (radius * 0.85) * Math.sin(ang));
     }
 
-    drawHand(mainCtx, h * (Math.PI / 6) - Math.PI / 2, 80, 8, 'rgba(255,255,255,0.9)');
-    drawHand(mainCtx, m * (Math.PI / 30) - Math.PI / 2, 120, 5, 'rgba(255,255,255,0.8)');
-    drawHand(mainCtx, s * (Math.PI / 30) - Math.PI / 2, 130, 2, 'rgba(220,20,60,0.9)');
+    // Zeiger (Längen basieren jetzt auf 'radius')
+    drawHand(mainCtx, center, h * (Math.PI / 6) - Math.PI / 2, radius * 0.5, size * 0.02, 'rgba(255,255,255,0.9)');
+    drawHand(mainCtx, center, m * (Math.PI / 30) - Math.PI / 2, radius * 0.8, size * 0.012, 'rgba(255,255,255,0.8)');
+    drawHand(mainCtx, center, s * (Math.PI / 30) - Math.PI / 2, radius * 0.9, size * 0.005, 'rgba(220,20,60,0.9)');
 
+    // Mittelpunkt
     mainCtx.beginPath();
-    mainCtx.arc(200, 200, 8, 0, 2 * Math.PI);
+    mainCtx.arc(center, center, size * 0.02, 0, 2 * Math.PI);
     mainCtx.fillStyle = 'white';
     mainCtx.fill();
+}
+
+// Hilfsfunktion anpassen, um 'center' zu akzeptieren
+function drawHand(ctx, center, angle, length, width, color) {
+    ctx.beginPath();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = width;
+    ctx.lineCap = "round";
+    ctx.moveTo(center, center);
+    ctx.lineTo(center + length * Math.cos(angle), center + length * Math.sin(angle));
+    ctx.stroke();
 }
 setInterval(updateMainClock, 16);
 
