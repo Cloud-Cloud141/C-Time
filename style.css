@@ -1,94 +1,137 @@
-/* Verhindert Standard-Abstände */
-html, body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-    background-color: #051a0e !important; /* Fallback: Dunkles Grün statt Weiß */
-}
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-    /* Aurora Hintergrund */
-    background: linear-gradient(135deg, #051a0e, #5d0a0a, #1a472a, #8b0000, #0a2e38) !important;
-    background-size: 400% 400% !important;
-    animation: auroraBG 20s ease infinite;
-    
-    font-family: 'Poppins', sans-serif;
+    background: #04160a;
+    height: 100vh;
     display: flex;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
-    color: #fff;
+    font-family: 'Quicksand', sans-serif;
     overflow: hidden;
-    position: fixed; /* Hält den Hintergrund auf Handys stabil */
-    top: 0;
-    left: 0;
+    color: #f3cf7a;
+    position: fixed;
+    width: 100%;
 }
 
-@keyframes auroraBG {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+.christmas-bg {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, rgba(18, 69, 36, 0.4) 0%, transparent 70%);
+    z-index: 1;
 }
 
 .clock-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 3vh;
+    position: relative;
     z-index: 10;
-    width: 100vw;
-    height: 100vh;
+    text-align: center;
+    cursor: pointer;
 }
 
 #digitalTime {
-    font-size: clamp(2rem, 10vmin, 5rem);
-    font-weight: bold;
-    color: #f3cf7a;
-    text-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
-    margin-bottom: 2vh;
+    font-size: 1.2rem;
+    letter-spacing: 0.6rem;
+    color: rgba(243, 207, 122, 0.5);
+    margin-bottom: 15px;
+}
+
+.clock-frame {
+    position: relative;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 50%;
+    border: 1px solid rgba(243, 207, 122, 0.3);
+    box-shadow: 0 0 80px rgba(0,0,0,0.6);
 }
 
 #analogClock {
-    /* Absolute Symmetrie durch vmin */
-    width: 75vmin; 
+    width: 75vmin;
     height: 75vmin;
-    max-width: 800px;
-    max-height: 800px;
-    
-    border-radius: 50%;
-    border: 1vmin solid transparent;
-    background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), 
-                      conic-gradient(from 0deg, #d4af37, #ff4757, #2ecc71, #3498db, #d4af37);
-    background-origin: border-box;
-    background-clip: content-box, border-box;
-    box-shadow: 0 0 50px rgba(0,0,0,0.5);
+    max-width: 650px;
+    max-height: 650px;
+    display: block;
 }
 
-/* Schnee-Effekt */
-.snowflake {
+.greeting {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 2.2rem;
+    margin-top: 25px;
+    background: linear-gradient(to bottom, #f3cf7a, #b38b3d);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.hint {
+    font-size: 0.7rem;
+    margin-top: 15px;
+    opacity: 0.4;
+    transition: opacity 2s ease;
+}
+
+.hint.hidden { opacity: 0; pointer-events: none; }
+
+/* OLED Warnung Styles */
+.warning-overlay {
     position: fixed;
-    top: -50px;
-    color: #fff;
-    z-index: 5;
-    pointer-events: none;
-    animation: fall linear forwards;
-}
-
-@keyframes fall {
-    to { transform: translateY(110vh) rotate(360deg); }
-}
-
-/* Video Overlay */
-.video-overlay {
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
+    inset: 0;
     background: #000;
-    z-index: 1000;
+    z-index: 4000;
     display: none;
-    align-items: center;
     justify-content: center;
+    align-items: center;
+    color: #f3cf7a;
+    text-align: center;
+    transition: opacity 1s ease;
 }
 
+.warning-box {
+    padding: 40px;
+    border: 1px solid rgba(243, 207, 122, 0.2);
+    background: #050505;
+}
+
+.warning-icon { font-size: 3rem; margin-bottom: 15px; }
+
+.progress-bar {
+    width: 300px;
+    height: 2px;
+    background: #111;
+    margin: 25px auto;
+    position: relative;
+}
+
+#progressFill {
+    position: absolute;
+    left: 0; height: 100%; width: 0%;
+    background: #f3cf7a;
+}
+
+/* Schnee & Video */
+.snowflake { position: fixed; top: -10px; color: white; pointer-events: none; z-index: 5; }
+@keyframes fall { to { transform: translateY(110vh) rotate(360deg); opacity: 0; } }
+
+#loadingScreen {
+    position: fixed;
+    inset: 0;
+    background: #04160a;
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 1s ease;
+}
+
+.loader-gold {
+    width: 40px; height: 40px; border-left: 2px solid #f3cf7a;
+    border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px;
+}
+@keyframes spin { 100% { transform: rotate(360deg); } }
+
+.video-overlay {
+    position: fixed; inset: 0; background: black; z-index: 3000;
+    display: none; flex-direction: column; justify-content: center; align-items: center;
+}
 .video-overlay.visible { display: flex; }
+#easterEggVideo { width: 85%; height: 75%; border: 1px solid #f3cf7a; }
+.close-btn { color: #f3cf7a; margin-top: 20px; font-size: 0.9rem; opacity: 0.6; }
