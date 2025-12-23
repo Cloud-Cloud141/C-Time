@@ -54,10 +54,14 @@ function updateClock() {
         mainCtx.fillText(i, center + (radius * 0.8) * Math.cos(ang), center + (radius * 0.8) * Math.sin(ang));
     }
 
-    // Zeiger
-    drawHand(center, h * (Math.PI / 6) - Math.PI / 2, radius * 0.5, size * 0.02, '#d4af37'); // Stunde
-    drawHand(center, m * (Math.PI / 30) - Math.PI / 2, radius * 0.75, size * 0.012, '#f3cf7a'); // Minute
-    drawHand(center, s * (Math.PI / 30) - Math.PI / 2, radius * 0.85, size * 0.005, '#ff4757'); // Sekunde
+// Stundenzeiger: Goldenes Leuchten
+drawHand(mainCtx, center, h * (Math.PI / 6) - Math.PI / 2, radius * 0.5, size * 0.025, '#d4af37'); 
+
+// Minutenzeiger: Smaragdgrünes Leuchten (sehr weihnachtlich!)
+drawHand(mainCtx, center, m * (Math.PI / 30) - Math.PI / 2, radius * 0.75, size * 0.015, '#2ecc71'); 
+
+// Sekundenzeiger: Kräftiges Rubinrot
+drawHand(mainCtx, center, s * (Math.PI / 30) - Math.PI / 2, radius * 0.88, size * 0.006, '#ff4757');
 
     requestAnimationFrame(updateClock); // Flüssiger als setInterval
 }
