@@ -16,28 +16,34 @@ body {
     overflow: hidden;
 }
 
-.clock-container { 
-    display: flex; 
-    flex-direction: column; 
-    align-items: center; 
-    gap: 2rem; 
-    cursor: pointer;
+.clock-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5vh; /* Flexibler Abstand */
+    width: 100%;
+    height: 100%;
 }
 
-#digitalTime { 
-    font-size: 3.5rem; 
-    font-weight: bold; 
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.3); 
-    letter-spacing: 0.1em; 
+#digitalTime {
+    font-size: 8vh; /* Schriftgröße passt sich der Bildschirmhöhe an */
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    letter-spacing: 0.1em;
 }
 
 #analogClock {
-    width: 400px; 
-    height: 400px;
-    border: 8px solid rgba(255,255,255,0.3);
+    /* Die Uhr nimmt 70% der verfügbaren Höhe oder Breite (je nachdem was kleiner ist) */
+    width: 70vh; 
+    height: 70vh;
+    max-width: 90vw;
+    max-height: 90vh;
+    
+    border: 1vh solid rgba(255,255,255,0.3);
     border-radius: 50%;
     background: rgba(0,0,0,0.1);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.3), inset 0 0 20px rgba(0,0,0,0.2);
+    box-shadow: 0 1vh 4vh rgba(0,0,0,0.3), inset 0 0 3vh rgba(0,0,0,0.2);
 }
 
 .version { 
