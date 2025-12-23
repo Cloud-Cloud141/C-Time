@@ -108,11 +108,22 @@ function createSnow() {
 }
 
 function toggleVideo() {
-    videoOverlay.classList.toggle('visible');
-    if (videoOverlay.classList.contains('visible')) {
-        iframe.src += "&autoplay=1";
+    if (!videoOverlay || !iframe) return;
+    
+    const isVisible = videoOverlay.classList.contains('visible');
+    
+    if (isVisible) {
+        // Video verstecken und stoppen
+        videoOverlay.classList.remove('visible');
+        const src = iframe.src;
+        iframe.src = ""; // Stoppt den Ton sofort
+        iframe.src = src.replace("&autoplay=1", ""); 
     } else {
-        iframe.src = iframe.src.replace("&autoplay=1", "");
+        // Video anzeigen und abspielen
+        videoOverlay.classList.add('visible');
+        if (!iframe.src.includes('autoplay=1')) {
+            iframe.src += "&autoplay=1";
+        }
     }
 }
 
