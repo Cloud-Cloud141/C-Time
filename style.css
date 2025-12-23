@@ -1,13 +1,12 @@
-/* Grund-Setup */
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-    /* Ein "Aurora"-Hintergrund, der zwischen weihnachtlichen Farben wechselt */
     background: linear-gradient(135deg, #051a0e, #5d0a0a, #1a472a, #8b0000, #0a2e38);
     background-size: 400% 400%;
     animation: auroraBG 20s ease infinite;
     font-family: 'Poppins', sans-serif;
     height: 100vh;
+    width: 100vw;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -25,15 +24,16 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     gap: 2vh;
     z-index: 10;
+    cursor: pointer;
 }
 
-/* Digitaluhr mit Regenbogen-Schimmer */
 #digitalTime {
-    font-size: clamp(3rem, 9vh, 6rem);
+    font-size: clamp(2rem, 9vh, 6rem);
     font-weight: bold;
-    background: linear-gradient(to right, #f3cf7a, #ff4757, #74b9ff, #f3cf7a);
+    background: linear-gradient(to right, #f3cf7a, #ff4757, #f3cf7a);
     background-size: 200% auto;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -41,61 +41,53 @@ body {
     filter: drop-shadow(0 0 10px rgba(255,255,255,0.3));
 }
 
-@keyframes shine {
-    to { background-position: 200% center; }
-}
+@keyframes shine { to { background-position: 200% center; } }
 
-/* Die analoge Uhr mit farbigem Leuchtkranz */
 #analogClock {
     width: 75vh;
     height: 75vh;
-    max-width: 90vw;
-    max-height: 90vh;
+    max-width: 85vw;
+    max-height: 85vh;
     border-radius: 50%;
-    background: rgba(0, 0, 0, 0.5);
-    /* Ein bunt leuchtender Rahmen */
+    /* Bunter Rahmen-Glow */
     border: 1vh solid transparent;
-    background-image: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), 
+    background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), 
                       conic-gradient(from 0deg, #d4af37, #ff4757, #2ecc71, #3498db, #d4af37);
     background-origin: border-box;
     background-clip: content-box, border-box;
-    box-shadow: 0 0 60px rgba(212, 175, 55, 0.4), inset 0 0 40px rgba(0,0,0,0.8);
-    animation: rotateBorder 10s linear infinite;
-}
-
-@keyframes rotateBorder {
-    from { filter: hue-rotate(0deg); }
-    to { filter: hue-rotate(360deg); }
-}
-.video-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: #000; /* Schwarzer Hintergrund beim Laden */
-    z-index: 1000;    /* Höchster Wert, damit es ÜBER der Uhr liegt */
-    display: none;    /* Standardmäßig versteckt */
-    align-items: center;
-    justify-content: center;
-}
-
-/* Diese Klasse wird per JavaScript hinzugefügt */
-.video-overlay.visible {
-    display: flex;
-}
-
-/* Das Iframe selbst sollte fast den ganzen Bildschirm füllen */
-#easterEggVideo {
-    width: 80%;
-    height: 80%;
-    border: 5px solid #d4af37; /* Goldener Rahmen fürs Video */
-    box-shadow: 0 0 30px rgba(212, 175, 55, 0.5);
+    box-shadow: 0 0 50px rgba(212,175,55,0.3);
 }
 
 .snowflake {
     position: fixed;
+    top: -50px;
     color: #fff;
     z-index: 5;
-    text-shadow: 0 0 8px rgba(255,255,255,0.8);
+    user-select: none;
+    pointer-events: none;
+    text-shadow: 0 0 5px #fff;
+    animation: fall linear forwards;
 }
+
+@keyframes fall {
+    to { transform: translateY(110vh) rotate(360deg); }
+}
+
+.video-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background: #000;
+    z-index: 1000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.video-overlay.visible { display: flex; }
+
+#easterEggVideo { width: 80%; height: 80%; border: 2px solid #d4af37; }
+
+.close-hint { margin-top: 20px; color: #aaa; font-size: 1.2rem; }
+
+.version { position: fixed; bottom: 10px; right: 10px; opacity: 0.3; font-size: 0.8rem; }
