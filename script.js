@@ -1,28 +1,46 @@
-// --- GLOBALE VARIABLEN & FULLSCREEN LOGIK ---
-let exitAllowed = false;
-
-// WICHTIG: Diese Variablen müssen definiert sein!
+// --- INITIALISIERUNG ---
 const mainCanvas = document.getElementById('analogClock');
 const mainCtx = mainCanvas ? mainCanvas.getContext('2d') : null;
 const digitalTimeEl = document.getElementById('digitalTime');
+const videoOverlay = document.getElementById('videoOverlay');
+const iframe = document.getElementById('easterEggVideo');
 
+let exitAllowed = false;
+
+// --- FUNKTIONEN ---
 const isTyping = () => {
     const active = document.activeElement;
     return active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.isContentEditable);
 };
 
-// ... (deine Funktionen enterFullscreen und leaveFullscreen bleiben gleich)
+async function enterFullscreen() {
+    try { if (!document.fullscreenElement) await document.documentElement.requestFullscreen(); } catch (e) {}
+}
+
+async function leaveFullscreen() {
+    try { if (document.fullscreenElement) await document.exitFullscreen(); } catch (e) {}
+}
+
+function drawHand(ctx, center, angle, length, width, color) {
+    ctx.beginPath();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = width;
+    ctx.lineCap = "round";
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = color;
+    ctx.moveTo(center, center);
+    ctx.lineTo(center + length * Math.cos(angle), center + length * Math.sin(angle));
+    ctx.stroke();
+    ctx.shadowBlur = 0; // Schatten für andere Elemente zurücksetzen
+}
 
 function updateMainClock() {
-    if (!mainCanvas || !mainCtx) return; // Sicherheitscheck
+    if (!mainCanvas || !mainCtx) return;
 
     const now = new Date();
-    
-    // 1. WICHTIG: Passt die interne Auflösung an die CSS-Größe an
     const rect = mainCanvas.getBoundingClientRect();
     
-    // Vermeidung von 0-Werten, falls das Element noch nicht geladen ist
-    if (rect.width === 0) return; 
+    if (rect.width === 0) return;
 
     if (mainCanvas.width !== rect.width || mainCanvas.height !== rect.height) {
         mainCanvas.width = rect.width;
@@ -31,114 +49,82 @@ function updateMainClock() {
 
     const size = mainCanvas.width;
     const center = size / 2;
-    const radius = size * 0.45; 
+    const radius = size * 0.45;
 
     const ms = now.getMilliseconds();
     const s = now.getSeconds() + ms / 1000;
     const m = now.getMinutes() + s / 60;
     const h = (now.getHours() % 12) + m / 60;
 
-    if (digitalTimeEl) {
-        digitalTimeEl.textContent = now.toLocaleTimeString('de-DE');
-    }
+    if (digitalTimeEl) digitalTimeEl.textContent = now.toLocaleTimeString('de-DE');
 
     mainCtx.clearRect(0, 0, size, size);
     
-    // 2. ZAHLEN
-    mainCtx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-    mainCtx.font = `bold ${size * 0.07}px Poppins, Arial`;
+    // Zahlen (Weiß mit Schatten)
+    mainCtx.fillStyle = '#ffffff';
+    mainCtx.font = `bold ${size * 0.07}px Arial`;
     mainCtx.textAlign = 'center';
     mainCtx.textBaseline = 'middle';
     for (let i = 1; i <= 12; i++) {
         const ang = (i - 3) * (Math.PI / 6);
-        const x = center + (radius * 0.82) * Math.cos(ang);
-        const y = center + (radius * 0.82) * Math.sin(ang);
-        mainCtx.fillText(i, x, y);
+        mainCtx.fillText(i, center + (radius * 0.82) * Math.cos(ang), center + (radius * 0.82) * Math.sin(ang));
     }
 
-    // 3. ZEIGER
-    drawHand(mainCtx, center, h * (Math.PI / 6) - Math.PI / 2, radius * 0.5, size * 0.025, '#d4af37');
-    drawHand(mainCtx, center, m * (Math.PI / 30) - Math.PI / 2, radius * 0.75, size * 0.015, '#f3cf7a');
-    drawHand(mainCtx, center, s * (Math.PI / 30) - Math.PI / 2, radius * 0.85, size * 0.006, '#ffffff');
+    // Zeiger zeichnen
+    drawHand(mainCtx, center, h * (Math.PI / 6) - Math.PI / 2, radius * 0.5, size * 0.025, '#d4af37'); // Gold
+    drawHand(mainCtx, center, m * (Math.PI / 30) - Math.PI / 2, radius * 0.75, size * 0.015, '#f3cf7a'); // Hellgold
+    drawHand(mainCtx, center, s * (Math.PI / 30) - Math.PI / 2, radius * 0.85, size * 0.006, '#ff4757'); // Festliches Rot
 
+    // Knopf in der Mitte
     mainCtx.beginPath();
     mainCtx.arc(center, center, size * 0.02, 0, 2 * Math.PI);
     mainCtx.fillStyle = '#d4af37';
     mainCtx.fill();
 }
-// Diese Hilfsfunktion muss 'center' als Parameter haben:
-function drawHand(ctx, center, angle, length, width, color) {
-    ctx.beginPath();
-    ctx.strokeStyle = color;
-    ctx.lineWidth = width;
-    ctx.lineCap = "round";
-    ctx.moveTo(center, center);
-    ctx.lineTo(center + length * Math.cos(angle), center + length * Math.sin(angle));
-    ctx.stroke();
-}
-setInterval(updateMainClock, 16);
-
-// --- VIDEO EASTER EGG LOGIK ---
-const videoOverlay = document.getElementById('videoOverlay');
-const iframe = document.getElementById('easterEggVideo');
 
 function toggleVideo() {
     if (!videoOverlay || !iframe) return;
     if (videoOverlay.classList.contains('visible')) {
-        const currentSrc = iframe.src;
-        iframe.src = ""; 
-        iframe.src = currentSrc.replace("&autoplay=1", ""); 
+        const src = iframe.src;
+        iframe.src = ""; iframe.src = src.replace("&autoplay=1", "");
         videoOverlay.classList.remove('visible');
     } else {
         videoOverlay.classList.add('visible');
-        if (!iframe.src.includes('autoplay=1')) {
-            iframe.src += "&autoplay=1";
-        }
+        if (!iframe.src.includes('autoplay=1')) iframe.src += "&autoplay=1";
     }
 }
 
-// --- OVERLAYS & SCHNEE & TASTEN ---
+// --- EVENTS ---
+setInterval(updateMainClock, 16);
+
 (function(){
-    // Schnee-Autostart für Heiligabend
-    let snowing = true; 
-    let sInt = setInterval(createSnowflake, 50);
+    let snowing = true;
+    let sInt = setInterval(createSnowflake, 60);
 
     document.addEventListener('keydown', (ev) => {
         if (isTyping()) return;
         const key = ev.key.toLowerCase();
-
-        if (key === 'b') {
+        if (key === 'b') { 
             if (!document.fullscreenElement) { exitAllowed = false; enterFullscreen(); }
             else { exitAllowed = true; leaveFullscreen(); }
         }
-
-        if (ev.key === 'Escape' && !exitAllowed) {
-            ev.preventDefault();
-            setTimeout(enterFullscreen, 50);
-        }
-
         if (key === 's') toggleVideo();
-
         if (key === 'f') {
             snowing = !snowing;
-            if (snowing) sInt = setInterval(createSnowflake, 50);
+            if (snowing) sInt = setInterval(createSnowflake, 60);
             else clearInterval(sInt);
         }
-    }, true);
+    });
 
     function createSnowflake() {
         const s = document.createElement('div');
         s.className = 'snowflake';
         s.textContent = '❄';
         s.style.left = Math.random()*100+'%';
-        s.style.top = '-30px';
-        const d = Math.random()*5+8;
+        s.style.top = '-50px';
+        const d = Math.random()*5+10;
         s.style.animation = `fall ${d}s linear`;
         document.body.appendChild(s);
         setTimeout(() => s.remove(), d*1000);
     }
 })();
-
-document.addEventListener('fullscreenchange', () => {
-    if (!document.fullscreenElement && !exitAllowed) enterFullscreen();
-});
