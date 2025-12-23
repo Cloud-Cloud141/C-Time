@@ -6,8 +6,10 @@
 }
 
 body {
-    /* Ein edler Weihnachts-Verlauf: Tiefes Rubinrot zu dunklem Tannengrün */
-    background: radial-gradient(circle at center, #5d0a0a 0%, #051a0e 100%);
+    /* Ein lebendiger Weihnachts-Verlauf, der sich bewegt */
+    background: linear-gradient(-45deg, #5d0a0a, #051a0e, #1a472a, #8b0000);
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
     font-family: 'Poppins', sans-serif;
     height: 100vh;
     display: flex;
@@ -18,65 +20,57 @@ body {
     overflow: hidden;
 }
 
-/* Der Uhren-Container */
+/* Animation für den farbenfrohen Hintergrund */
+@keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
 .clock-container { 
     display: flex; 
     flex-direction: column; 
     align-items: center; 
     justify-content: center;
-    gap: 3vh; 
-    cursor: pointer;
+    gap: 2vh; 
     z-index: 10;
 }
 
-/* Digitale Anzeige mit goldenem Schimmer */
+/* Digitale Zeit mit intensivem Gold-Glow */
 #digitalTime { 
-    font-size: 8vh; 
+    font-size: 9vh; 
     font-weight: bold; 
-    color: #f3cf7a; /* Sanftes Gold */
-    text-shadow: 0 0 20px rgba(212, 175, 55, 0.5), 2px 2px 4px rgba(0,0,0,0.5); 
-    letter-spacing: 0.1em; 
+    color: #f3cf7a;
+    text-shadow: 0 0 30px rgba(212, 175, 55, 0.8), 2px 2px 10px rgba(0,0,0,0.5); 
+    letter-spacing: 0.15em; 
 }
 
-/* Die analoge Uhr */
+/* Die analoge Uhr als glänzendes Ornament */
 #analogClock {
     width: 70vh; 
     height: 70vh;
-    max-width: 85vw;
-    max-height: 85vh;
-    /* Rahmen sieht aus wie ein goldener Kranz */
-    border: 1.5vh solid #d4af37; 
+    border: 1.2vh solid #d4af37; 
     border-radius: 50%;
-    background: rgba(0, 0, 0, 0.3);
-    /* Glühen nach außen und innen */
-    box-shadow: 0 0 50px rgba(212, 175, 55, 0.3), inset 0 0 30px rgba(0,0,0,0.6);
+    background: rgba(0, 0, 0, 0.4);
+    /* Mehrschichtiger Schatten für Tiefe */
+    box-shadow: 
+        0 0 50px rgba(212, 175, 55, 0.4), 
+        inset 0 0 40px rgba(0,0,0,0.7),
+        0 0 100px rgba(139, 0, 0, 0.3);
 }
 
-/* Versionsanzeige dezent unten rechts */
-.version { 
-    position: fixed; 
-    bottom: 20px; 
-    right: 20px; 
-    font-size: 0.8rem; 
-    color: rgba(255,255,255,0.3); 
-}
-
-/* Schneeflocken-Design */
+/* Schneeflocken mit leichtem Glitzern */
 .snowflake { 
     position: fixed; 
     color: #ffffff; 
-    font-size: 1.2rem; 
+    font-size: 1.5rem; 
     z-index: 5; 
-    user-select: none; 
-    pointer-events: none;
-    /* Weiches Leuchten für die Flocken */
-    text-shadow: 0 0 5px #fff;
+    text-shadow: 0 0 10px #fff, 0 0 20px #74b9ff;
 }
 
 @keyframes fall { 
-    to { transform: translateY(110vh) rotate(360deg); } 
+    to { transform: translateY(110vh) rotate(720deg); } 
 }
-
 /* Video-Overlay für das Easter Egg */
 .video-overlay { 
     position: fixed; 
