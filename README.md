@@ -1,25 +1,57 @@
-# 🕒 Die Zeit - Interaktive Uhr (v1.4)
+# 🎄 Magic Christmas Clock v1.5 🎅
 
-Eine moderne, webbasierte Uhr mit flüssiger Zeigerbewegung, verschiedenen Overlays und einem Vollbild-Sicherheitsmodus.
+Eine hochauflösende, interaktive Weihnachtsuhr, optimiert für **LG WebOS Fernseher, PCs, Handys und Konsolen**. Diese Uhr kombiniert ein edles analoges Design mit modernen "Aurora"-Effekten und versteckten Easter Eggs für den Heiligabend.
 
-## 🚀 Funktionen
-- **Smooth Motion**: Der Sekundenzeiger gleitet flüssig (60 FPS) statt zu ticken.
-- **Vollbild-Lock**: Die Uhr ist für den Kiosk-Modus optimiert. Die `Esc`-Taste wird abgefangen, sodass die Uhr aktiv bleibt.
-- **Interaktive Overlays**: Verschiedene Ansichten können per Tastendruck zugeschaltet werden.
-- **Effekte**: Ein optionaler Schneefall-Effekt für winterliche Stimmung.
+---
 
-## ⌨️ Steuerung
-| Taste | Aktion |
-| :--- | :--- |
-| **B** | **Beenden / Starten** (Den Vollbildmodus verlassen) |
-| **Z** | Analog-Uhr Overlay ein-/ausblenden |
-| **Q** | Digital-Uhr Overlay ein-/ausblenden |
-| **F** | Schneefall-Effekt (Flocken) ein-/ausblenden |
+## ✨ Features in Version 1.5
 
-## 🛠️ Installation
-1. Lade die drei Dateien (`index.html`, `style.css`, `script.js`) in einen Ordner hoch.
-2. Stelle sicher, dass eine Datei namens `CLOUD.png` im selben Verzeichnis liegt (für das Icon).
-3. Öffne die `index.html` in einem modernen Webbrowser.
+* **🌈 Aurora-Design:** Ein fließender, farbenfroher Hintergrund, der zwischen Rubinrot, Tannengrün und Nordlicht-Blau wechselt.
+* **✨ Rainbow Glow:** Die Uhr besitzt einen rotierenden, farbigen Leuchtkranz und goldene Zeiger.
+* **📱 Multi-Device Support:** Optimierte Darstellung für 4K TVs, Smartphones (Touch) und Browser.
+* **❄️ Dynamischer Schneefall:** Ein integriertes Partikelsystem für eine gemütliche Atmosphäre.
+* **🎬 Secret Easter Egg:** Ein versteckter Video-Player für besondere Momente.
 
-## 🌐 Hosting (GitHub Pages)
-Dieses Projekt kann einfach über GitHub Pages gehostet werden. Benenne die Hauptdatei einfach `index.html`, lade sie hoch und aktiviere "Pages" in den Repository-Einstellungen.
+---
+
+## 🎮 Bedienung & Tastenkürzel
+
+Du kannst die Uhr über die Tastatur (PC/Konsole) oder per Klick/Touch (TV/Handy) steuern:
+
+| Taste | Aktion | Beschreibung |
+| :--- | :--- | :--- |
+| **B** | Fullscreen | Aktiviert/Deaktiviert den Vollbildmodus. |
+| **S** | Secret Video | Startet das versteckte YouTube-Easter-Egg. |
+| **F** | Frost/Snow | Schaltet den Schneefall ein oder aus. |
+| **Klick** | Fullscreen | Ein einfacher Klick auf die Uhr aktiviert das Vollbild. |
+
+---
+
+## 🚀 Installation & Nutzung
+
+1.  Lade die Dateien `index.html`, `style.css` und `script.js` in dein GitHub-Repository hoch.
+2.  Aktiviere **GitHub Pages** in den Einstellungen deines Repositories.
+3.  Öffne die URL im Browser deines **LG TVs (WebOS)**.
+4.  **Wichtig:** Klicke einmal mit der Magic Remote auf die Uhr, damit der Browser den Vollbildmodus und Autoplay erlaubt.
+
+---
+
+## 🛠 Technische Details
+
+* **Sprachen:** HTML5, CSS3 (Animations), JavaScript (Canvas API).
+* **Optimierung:** Nutzt `requestAnimationFrame` für maximale Flüssigkeit (60 FPS) bei geringer CPU-Last.
+* **Responsive:** Verwendet `vmin`-Einheiten, um auf jedem Seitenverhältnis perfekt rund zu bleiben.
+
+---
+
+## 📜 Version History
+
+* **v1.0:** Basis-Analoguhr mit digitaler Anzeige.
+* **v1.2:** Fullscreen-Fixes und Schneefall-System.
+* **v1.5 (Aktuell):** * Umstellung auf farbenfrohes Aurora-Design.
+    * Optimierung für LG WebOS (TV) und Mobilgeräte.
+    * Hinzufügen von Minuten-Markierungen und Glow-Effekten.
+
+---
+
+*Erstellt mit ❤️ für die Weihnachtszeit.*
