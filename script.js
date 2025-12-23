@@ -22,12 +22,16 @@ function drawHand(ctx, center, angle, length, width, color) {
 
 function updateClock() {
     const rect = mainCanvas.getBoundingClientRect();
-    if (mainCanvas.width !== rect.width || mainCanvas.height !== rect.height) {
-        mainCanvas.width = rect.width;
-        mainCanvas.height = rect.height;
+    const dpr = window.devicePixelRatio || 1; // Erkennt die Pixeldichte des Handys
+
+    // Korrektur für messerscharfe Zeiger auf Handys und 4K TVs
+    if (mainCanvas.width !== rect.width * dpr || mainCanvas.height !== rect.height * dpr) {
+        mainCanvas.width = rect.width * dpr;
+        mainCanvas.height = rect.height * dpr;
+        mainCtx.scale(dpr, dpr); // Skaliert das Zeichnen passend zur Pixeldichte
     }
 
-    const size = mainCanvas.width;
+    const size = rect.width; // Wir nutzen rect.width, da width/height nun gleich sind
     const center = size / 2;
     const radius = size * 0.45;
     const now = new Date();
