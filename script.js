@@ -4,43 +4,32 @@ const digitalTimeEl = document.getElementById('digitalTime');
 const videoOverlay = document.getElementById('videoOverlay');
 const iframe = document.getElementById('easterEggVideo');
 
-let exitAllowed = false;
 let snowing = true;
-
-function drawHand(ctx, center, angle, length, width, color) {
-    ctx.beginPath();
-    ctx.strokeStyle = color;
-    ctx.lineWidth = width;
-    ctx.lineCap = "round";
-    ctx.shadowBlur = 10;
-    ctx.shadowColor = color;
-    ctx.moveTo(center, center);
-    ctx.lineTo(center + length * Math.cos(angle), center + length * Math.sin(angle));
-    ctx.stroke();
-    ctx.shadowBlur = 0;
-}
 
 function updateClock() {
     const rect = mainCanvas.getBoundingClientRect();
-    const dpr = window.devicePixelRatio || 1; // Erkennt die Pixeldichte des Handys
+    const dpr = window.devicePixelRatio || 1;
 
-    // Korrektur für messerscharfe Zeiger auf Handys und 4K TVs
-    if (mainCanvas.width !== rect.width * dpr || mainCanvas.height !== rect.height * dpr) {
+    // Passt das Canvas an die Handy-Auflösung an (verhindert Unschärfe)
+    if (mainCanvas.width !== rect.width * dpr) {
         mainCanvas.width = rect.width * dpr;
         mainCanvas.height = rect.height * dpr;
-        mainCtx.scale(dpr, dpr); // Skaliert das Zeichnen passend zur Pixeldichte
     }
 
-    const size = rect.width; // Wir nutzen rect.width, da width/height nun gleich sind
+    // Alles im Kontext skalieren
+    mainCtx.save();
+    mainCtx.scale(dpr, dpr);
+    
+    const size = rect.width;
     const center = size / 2;
-    const radius = size * 0.45;
+    const radius = size * 0.44;
     const now = new Date();
 
     if (digitalTimeEl) digitalTimeEl.textContent = now.toLocaleTimeString('de-DE');
 
     mainCtx.clearRect(0, 0, size, size);
 
-    // Ziffern zeichnen
+    // Zahlen zeichnen
     mainCtx.fillStyle = "white";
     mainCtx.font = `bold ${size * 0.08}px Arial`;
     mainCtx.textAlign = "center";
@@ -50,24 +39,30 @@ function updateClock() {
         mainCtx.fillText(i, center + (radius * 0.82) * Math.cos(ang), center + (radius * 0.82) * Math.sin(ang));
     }
 
-    // Zeit für Zeiger
+    // Zeiger
     const s = now.getSeconds() + now.getMilliseconds() / 1000;
     const m = now.getMinutes() + s / 60;
     const h = (now.getHours() % 12) + m / 60;
 
-    drawHand(mainCtx, center, h * (Math.PI / 6) - Math.PI / 2, radius * 0.5, size * 0.025, '#d4af37'); // Stunde
-    drawHand(mainCtx, center, m * (Math.PI / 30) - Math.PI / 2, radius * 0.75, size * 0.015, '#f3cf7a'); // Minute
-    drawHand(mainCtx, center, s * (Math.PI / 30) - Math.PI / 2, radius * 0.85, size * 0.006, '#ff4757'); // Sekunde
+    const drawHand = (angle, length, width, color) => {
+        mainCtx.beginPath();
+        mainCtx.strokeStyle = color;
+        mainCtx.lineWidth = width;
+        mainCtx.lineCap = "round";
+        mainCtx.moveTo(center, center);
+        mainCtx.lineTo(center + length * Math.cos(angle), center + length * Math.sin(angle));
+        mainCtx.stroke();
+    };
 
-    // Mittelpunkt
-    mainCtx.beginPath();
-    mainCtx.arc(center, center, size * 0.02, 0, Math.PI * 2);
-    mainCtx.fillStyle = "#d4af37";
-    mainCtx.fill();
+    drawHand(h * (Math.PI / 6) - Math.PI / 2, radius * 0.5, size * 0.025, '#d4af37'); // Stunde
+    drawHand(m * (Math.PI / 30) - Math.PI / 2, radius * 0.75, size * 0.015, '#f3cf7a'); // Minute
+    drawHand(s * (Math.PI / 30) - Math.PI / 2, radius * 0.85, size * 0.006, '#ff4757'); // Sekunde
 
+    mainCtx.restore();
     requestAnimationFrame(updateClock);
 }
 
+// Schneefall
 function createSnowflake() {
     if (!snowing) return;
     const s = document.createElement('div');
@@ -81,21 +76,20 @@ function createSnowflake() {
     setTimeout(() => s.remove(), duration * 1000);
 }
 
-// Fullscreen für TV/Handy bei Klick
+// Interaktion
 document.querySelector('.clock-container').addEventListener('click', async () => {
     if (!document.fullscreenElement) {
-        await document.documentElement.requestFullscreen().catch(e => {});
+        document.documentElement.requestFullscreen().catch(() => {});
     }
 });
 
-// Tastensteuerung (PC/Konsole)
 document.addEventListener('keydown', (e) => {
     const key = e.key.toLowerCase();
     if (key === 'f') snowing = !snowing;
     if (key === 's') {
         videoOverlay.classList.toggle('visible');
         if (!videoOverlay.classList.contains('visible')) {
-            const src = iframe.src; iframe.src = ""; iframe.src = src; // Stop Video
+            const src = iframe.src; iframe.src = ""; iframe.src = src;
         }
     }
 });
