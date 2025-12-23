@@ -1,30 +1,29 @@
 // --- GLOBALE VARIABLEN & FULLSCREEN LOGIK ---
 let exitAllowed = false;
 
+// WICHTIG: Diese Variablen müssen definiert sein!
+const mainCanvas = document.getElementById('analogClock');
+const mainCtx = mainCanvas ? mainCanvas.getContext('2d') : null;
+const digitalTimeEl = document.getElementById('digitalTime');
+
 const isTyping = () => {
     const active = document.activeElement;
     return active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.isContentEditable);
 };
 
-async function enterFullscreen() {
-    try {
-        if (!document.fullscreenElement) {
-            await document.documentElement.requestFullscreen();
-        }
-    } catch (e) {}
-}
-
-async function leaveFullscreen() {
-    try {
-        if (document.fullscreenElement) await document.exitFullscreen();
-    } catch (e) {}
-}
+// ... (deine Funktionen enterFullscreen und leaveFullscreen bleiben gleich)
 
 function updateMainClock() {
+    if (!mainCanvas || !mainCtx) return; // Sicherheitscheck
+
     const now = new Date();
     
     // 1. WICHTIG: Passt die interne Auflösung an die CSS-Größe an
     const rect = mainCanvas.getBoundingClientRect();
+    
+    // Vermeidung von 0-Werten, falls das Element noch nicht geladen ist
+    if (rect.width === 0) return; 
+
     if (mainCanvas.width !== rect.width || mainCanvas.height !== rect.height) {
         mainCanvas.width = rect.width;
         mainCanvas.height = rect.height;
@@ -32,18 +31,20 @@ function updateMainClock() {
 
     const size = mainCanvas.width;
     const center = size / 2;
-    const radius = size * 0.45; // Etwas kleiner als der Rand für saubere Optik
+    const radius = size * 0.45; 
 
     const ms = now.getMilliseconds();
     const s = now.getSeconds() + ms / 1000;
     const m = now.getMinutes() + s / 60;
     const h = (now.getHours() % 12) + m / 60;
 
-    digitalTimeEl.textContent = now.toLocaleTimeString('de-DE');
+    if (digitalTimeEl) {
+        digitalTimeEl.textContent = now.toLocaleTimeString('de-DE');
+    }
 
     mainCtx.clearRect(0, 0, size, size);
     
-    // 2. ZAHLEN (werden jetzt passend zur Größe gezeichnet)
+    // 2. ZAHLEN
     mainCtx.fillStyle = 'rgba(255, 255, 255, 0.8)';
     mainCtx.font = `bold ${size * 0.07}px Poppins, Arial`;
     mainCtx.textAlign = 'center';
@@ -55,21 +56,16 @@ function updateMainClock() {
         mainCtx.fillText(i, x, y);
     }
 
-    // 3. ZEIGER (Längen und Breiten skalieren mit der Größe)
-    // Stundenzeiger (Gold)
+    // 3. ZEIGER
     drawHand(mainCtx, center, h * (Math.PI / 6) - Math.PI / 2, radius * 0.5, size * 0.025, '#d4af37');
-    // Minutenzeiger (Gold-hell)
     drawHand(mainCtx, center, m * (Math.PI / 30) - Math.PI / 2, radius * 0.75, size * 0.015, '#f3cf7a');
-    // Sekundenzeiger (Weiß)
     drawHand(mainCtx, center, s * (Math.PI / 30) - Math.PI / 2, radius * 0.85, size * 0.006, '#ffffff');
 
-    // Mittelpunkt (Goldener Knopf)
     mainCtx.beginPath();
     mainCtx.arc(center, center, size * 0.02, 0, 2 * Math.PI);
     mainCtx.fillStyle = '#d4af37';
     mainCtx.fill();
 }
-
 // Diese Hilfsfunktion muss 'center' als Parameter haben:
 function drawHand(ctx, center, angle, length, width, color) {
     ctx.beginPath();
