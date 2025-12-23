@@ -44,17 +44,33 @@ body {
 @keyframes shine { to { background-position: 200% center; } }
 
 #analogClock {
-    width: 75vh;
-    height: 75vh;
-    max-width: 85vw;
-    max-height: 85vh;
+    /* vmin sorgt dafür, dass die Uhr sich immer nach der SCHMALSTEN Seite richtet */
+    width: 85vmin; 
+    height: 85vmin;
+    
+    /* Begrenzung für riesige Monitore, damit sie nicht zu gigantisch wird */
+    max-width: 800px;
+    max-height: 800px;
+    
     border-radius: 50%;
-    border: 1vh solid transparent;
+    border: 1vmin solid transparent;
     background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), 
                       conic-gradient(from 0deg, #d4af37, #ff4757, #2ecc71, #3498db, #d4af37);
     background-origin: border-box;
     background-clip: content-box, border-box;
-    box-shadow: 0 0 50px rgba(212,175,55,0.4);
+    box-shadow: 0 0 50px rgba(212, 175, 55, 0.4);
+    
+    /* Verhindert Verzerrungen durch Browser-Skalierung */
+    display: block;
+}
+
+body {
+    /* Wichtig für Handys: Verhindert Scrollen und Zoomen */
+    touch-action: none;
+    overflow: hidden;
+    position: fixed; /* Fixiert den Viewport auf Mobilgeräten */
+    width: 100%;
+    height: 100%;
 }
 
 .snowflake {
