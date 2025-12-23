@@ -3,26 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>C-TIME</title>
+    <title>Christmas Luxury Clock v1.8</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="CLOUD (1).png">
+    <link rel="apple-touch-icon" href="CLOUD (1).png">
+    <link rel="manifest" href="manifest.json">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;1,700&family=Quicksand:wght@300&display=swap" rel="stylesheet">
 </head>
 <body>
 
-    <div class="clock-container">
-        <div id="digitalTime">00:00:00</div>
-        <canvas id="analogClock"></canvas>
+    <div id="loadingScreen">
+        <div class="loader-gold"></div>
+        <p>Festliche Magie wird geladen...</p>
+    </div>
+
+    <div id="oledProtection" class="warning-overlay">
+        <div class="warning-box">
+            <div class="warning-icon">⚡</div>
+            <h2>OLED PIXEL REFRESH</h2>
+            <p>Automatischer Bildschirmschutz aktiv...</p>
+            <p class="small">Vermeidung von Burn-In Schäden (Stündliche Kalibrierung)</p>
+            <div class="progress-bar"><div id="progressFill"></div></div>
+            <div id="countdown">60s</div>
+        </div>
+    </div>
+
+    <div class="christmas-bg"></div>
+
+    <div class="clock-container" id="mainContainer">
+        <div id="digitalTime">00:00</div>
+        <div class="clock-frame">
+            <canvas id="analogClock"></canvas>
+        </div>
+        <div class="greeting">Frohe Weihnachten</div>
+        <div class="hint" id="helpHint">Klicken für Vollbild | 'S' für Video</div>
     </div>
 
     <div id="videoOverlay" class="video-overlay">
         <iframe id="easterEggVideo" src="https://www.youtube.com/embed/dQw4w9WgXcQ?enablejsapi=1" frameborder="0" allow="autoplay; fullscreen"></iframe>
-        <div class="close-hint">Drücke 'S' zum Schließen</div>
+        <div class="close-btn">Drücke 'S' zum Beenden</div>
     </div>
-
-    <div class="version">v1.6 Premium</div>
 
     <script src="script.js"></script>
 </body>
 </html>
-
-
