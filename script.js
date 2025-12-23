@@ -1,98 +1,147 @@
-const mainCanvas = document.getElementById('analogClock');
-const mainCtx = mainCanvas.getContext('2d');
+const canvas = document.getElementById('analogClock');
+const ctx = canvas.getContext('2d');
 const digitalTimeEl = document.getElementById('digitalTime');
-const videoOverlay = document.getElementById('videoOverlay');
-const iframe = document.getElementById('easterEggVideo');
+const mainContainer = document.getElementById('mainContainer');
+const helpHint = document.getElementById('helpHint');
 
-let snowing = true;
+let isProtecting = false;
+
+function checkOledProtection() {
+    const now = new Date();
+    // Startet jede volle Stunde (Minute 0, Sekunde 0)
+    if (now.getMinutes() === 0 && now.getSeconds() === 0 && !isProtecting) {
+        runOledProtection();
+    }
+}
+
+function runOledProtection() {
+    isProtecting = true;
+    const overlay = document.getElementById('oledProtection');
+    const fill = document.getElementById('progressFill');
+    const count = document.getElementById('countdown');
+    
+    overlay.style.display = 'flex';
+    overlay.style.opacity = '1';
+    
+    let timeLeft = 60;
+    const interval = setInterval(() => {
+        timeLeft--;
+        if (count) count.textContent = timeLeft + "s";
+        if (fill) fill.style.width = ((60 - timeLeft) / 60 * 100) + "%";
+        
+        if (timeLeft <= 0) {
+            clearInterval(interval);
+            overlay.style.opacity = '0';
+            setTimeout(() => {
+                overlay.style.display = 'none';
+                isProtecting = false;
+            }, 1000);
+        }
+    }, 1000);
+}
 
 function updateClock() {
-    const rect = mainCanvas.getBoundingClientRect();
-    const dpr = window.devicePixelRatio || 1;
-
-    // Passt das Canvas an die Handy-Auflösung an (verhindert Unschärfe)
-    if (mainCanvas.width !== rect.width * dpr) {
-        mainCanvas.width = rect.width * dpr;
-        mainCanvas.height = rect.height * dpr;
+    checkOledProtection();
+    
+    if (isProtecting) {
+        requestAnimationFrame(updateClock);
+        return;
     }
 
-    // Alles im Kontext skalieren
-    mainCtx.save();
-    mainCtx.scale(dpr, dpr);
-    
+    const dpr = window.devicePixelRatio || 2;
+    const rect = canvas.getBoundingClientRect();
+    if (canvas.width !== rect.width * dpr) {
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+    }
+
+    ctx.save();
+    ctx.scale(dpr, dpr);
     const size = rect.width;
     const center = size / 2;
-    const radius = size * 0.44;
+    const radius = size * 0.46;
     const now = new Date();
 
-    if (digitalTimeEl) digitalTimeEl.textContent = now.toLocaleTimeString('de-DE');
+    ctx.clearRect(0, 0, size, size);
 
-    mainCtx.clearRect(0, 0, size, size);
-
-    // Zahlen zeichnen
-    mainCtx.fillStyle = "white";
-    mainCtx.font = `bold ${size * 0.08}px Arial`;
-    mainCtx.textAlign = "center";
-    mainCtx.textBaseline = "middle";
-    for (let i = 1; i <= 12; i++) {
-        const ang = (i - 3) * (Math.PI / 6);
-        mainCtx.fillText(i, center + (radius * 0.82) * Math.cos(ang), center + (radius * 0.82) * Math.sin(ang));
+    // Zifferblatt Indizes
+    for (let i = 0; i < 60; i++) {
+        const angle = (i * Math.PI) / 30;
+        const isHour = i % 5 === 0;
+        ctx.beginPath();
+        ctx.strokeStyle = isHour ? '#f3cf7a' : 'rgba(243, 207, 122, 0.2)';
+        ctx.lineWidth = isHour ? 2 : 1;
+        ctx.moveTo(center + radius * Math.cos(angle), center + radius * Math.sin(angle));
+        ctx.lineTo(center + (radius - (isHour ? 15 : 6)) * Math.cos(angle), center + (radius - (isHour ? 15 : 6)) * Math.sin(angle));
+        ctx.stroke();
     }
 
-    // Zeiger
-    const s = now.getSeconds() + now.getMilliseconds() / 1000;
+    const ms = now.getMilliseconds();
+    const s = now.getSeconds() + ms / 1000;
     const m = now.getMinutes() + s / 60;
     const h = (now.getHours() % 12) + m / 60;
 
     const drawHand = (angle, length, width, color) => {
-        mainCtx.beginPath();
-        mainCtx.strokeStyle = color;
-        mainCtx.lineWidth = width;
-        mainCtx.lineCap = "round";
-        mainCtx.moveTo(center, center);
-        mainCtx.lineTo(center + length * Math.cos(angle), center + length * Math.sin(angle));
-        mainCtx.stroke();
+        ctx.beginPath();
+        ctx.lineWidth = width;
+        ctx.lineCap = 'round';
+        ctx.strokeStyle = color;
+        ctx.moveTo(center, center);
+        ctx.lineTo(center + length * Math.cos(angle), center + length * Math.sin(angle));
+        ctx.stroke();
     };
 
-    drawHand(h * (Math.PI / 6) - Math.PI / 2, radius * 0.5, size * 0.025, '#d4af37'); // Stunde
-    drawHand(m * (Math.PI / 30) - Math.PI / 2, radius * 0.75, size * 0.015, '#f3cf7a'); // Minute
-    drawHand(s * (Math.PI / 30) - Math.PI / 2, radius * 0.85, size * 0.006, '#ff4757'); // Sekunde
+    drawHand((h * Math.PI / 6) - Math.PI / 2, radius * 0.5, 4, '#f3cf7a');
+    drawHand((m * Math.PI / 30) - Math.PI / 2, radius * 0.8, 2, '#f3cf7a');
+    drawHand((s * Math.PI / 30) - Math.PI / 2, radius * 0.85, 1, '#ff4757');
 
-    mainCtx.restore();
+    ctx.beginPath(); ctx.arc(center, center, 4, 0, Math.PI * 2);
+    ctx.fillStyle = '#f3cf7a'; ctx.fill();
+
+    ctx.restore();
+    digitalTimeEl.textContent = now.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
     requestAnimationFrame(updateClock);
 }
 
-// Schneefall
-function createSnowflake() {
-    if (!snowing) return;
-    const s = document.createElement('div');
-    s.className = 'snowflake';
-    s.textContent = '❄';
-    s.style.left = Math.random() * 100 + '%';
-    const duration = Math.random() * 5 + 8;
-    s.style.animationDuration = duration + 's';
-    s.style.fontSize = Math.random() * 10 + 15 + 'px';
-    document.body.appendChild(s);
-    setTimeout(() => s.remove(), duration * 1000);
-}
-
-// Interaktion
-document.querySelector('.clock-container').addEventListener('click', async () => {
+mainContainer.addEventListener('click', () => {
     if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(() => {});
+        document.documentElement.requestFullscreen();
+        if (helpHint) helpHint.classList.add('hidden');
+    } else {
+        document.exitFullscreen();
     }
 });
 
+function createSnow() {
+    if (isProtecting) return;
+    const s = document.createElement('div');
+    s.className = 'snowflake';
+    s.innerHTML = '•';
+    s.style.left = Math.random() * 100 + 'vw';
+    const dur = Math.random() * 3 + 6;
+    s.style.animation = `fall ${dur}s linear forwards`;
+    document.body.appendChild(s);
+    setTimeout(() => s.remove(), dur * 1000);
+}
+
+window.addEventListener('load', () => {
+    setTimeout(() => {
+        document.getElementById('loadingScreen').style.opacity = '0';
+        setTimeout(() => document.getElementById('loadingScreen').style.display = 'none', 1000);
+    }, 1500);
+    setTimeout(() => { if (helpHint) helpHint.classList.add('hidden'); }, 10000);
+});
+
+setInterval(createSnow, 150);
+updateClock();
+
 document.addEventListener('keydown', (e) => {
-    const key = e.key.toLowerCase();
-    if (key === 'f') snowing = !snowing;
-    if (key === 's') {
-        videoOverlay.classList.toggle('visible');
-        if (!videoOverlay.classList.contains('visible')) {
+    if (e.key.toLowerCase() === 's') {
+        const overlay = document.getElementById('videoOverlay');
+        const iframe = document.getElementById('easterEggVideo');
+        overlay.classList.toggle('visible');
+        if (!overlay.classList.contains('visible')) {
             const src = iframe.src; iframe.src = ""; iframe.src = src;
         }
     }
 });
-
-setInterval(createSnowflake, 150);
-updateClock();
