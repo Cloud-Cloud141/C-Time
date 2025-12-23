@@ -6,6 +6,7 @@ body {
     animation: auroraBG 20s ease infinite;
     font-family: 'Poppins', sans-serif;
     height: 100vh;
+    width: 100vw;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -30,7 +31,7 @@ body {
 }
 
 #digitalTime {
-    font-size: clamp(2rem, 9vh, 6rem);
+    font-size: clamp(2.5rem, 9vh, 6rem);
     font-weight: bold;
     background: linear-gradient(to right, #f3cf7a, #ff4757, #f3cf7a);
     background-size: 200% auto;
@@ -53,7 +54,7 @@ body {
                       conic-gradient(from 0deg, #d4af37, #ff4757, #2ecc71, #3498db, #d4af37);
     background-origin: border-box;
     background-clip: content-box, border-box;
-    box-shadow: 0 0 50px rgba(212,175,55,0.3);
+    box-shadow: 0 0 50px rgba(212,175,55,0.4);
 }
 
 .snowflake {
@@ -86,6 +87,6 @@ body {
 
 #easterEggVideo { width: 85%; height: 80%; border: 2px solid #d4af37; }
 
-.close-hint { margin-top: 20px; color: #aaa; }
+.close-hint { margin-top: 20px; color: #aaa; font-weight: bold; }
 
 .version { position: fixed; bottom: 10px; right: 10px; opacity: 0.3; font-size: 0.7rem; }
