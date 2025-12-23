@@ -67,6 +67,31 @@ body {
     from { filter: hue-rotate(0deg); }
     to { filter: hue-rotate(360deg); }
 }
+.video-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #000; /* Schwarzer Hintergrund beim Laden */
+    z-index: 1000;    /* Höchster Wert, damit es ÜBER der Uhr liegt */
+    display: none;    /* Standardmäßig versteckt */
+    align-items: center;
+    justify-content: center;
+}
+
+/* Diese Klasse wird per JavaScript hinzugefügt */
+.video-overlay.visible {
+    display: flex;
+}
+
+/* Das Iframe selbst sollte fast den ganzen Bildschirm füllen */
+#easterEggVideo {
+    width: 80%;
+    height: 80%;
+    border: 5px solid #d4af37; /* Goldener Rahmen fürs Video */
+    box-shadow: 0 0 30px rgba(212, 175, 55, 0.5);
+}
 
 .snowflake {
     position: fixed;
