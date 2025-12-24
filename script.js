@@ -5,44 +5,88 @@ const mainContainer = document.getElementById('mainContainer');
 const helpHint = document.getElementById('helpHint');
 
 let isProtecting = false;
+let clickTimer; 
+let isLongPress = false;
+const LONG_PRESS_DURATION = 3000; // 3 Sekunden für das Video
 
-function checkOledProtection() {
-    const now = new Date();
-    // Startet jede volle Stunde (Minute 0, Sekunde 0)
-    if (now.getMinutes() === 0 && now.getSeconds() === 0 && !isProtecting) {
-        runOledProtection();
+// --- VIDEO STEUERUNG ---
+function toggleVideo() {
+    const overlay = document.getElementById('videoOverlay');
+    const iframe = document.getElementById('easterEggVideo');
+    if (!overlay) return;
+
+    const isVisible = overlay.classList.toggle('visible');
+    
+    // Video stoppen, wenn Overlay geschlossen wird
+    if (!isVisible && iframe) {
+        const src = iframe.src; 
+        iframe.src = ""; 
+        iframe.src = src;
     }
 }
 
-function runOledProtection() {
-    isProtecting = true;
-    const overlay = document.getElementById('oledProtection');
-    const fill = document.getElementById('progressFill');
-    const count = document.getElementById('countdown');
-    
-    overlay.style.display = 'flex';
-    overlay.style.opacity = '1';
-    
-    let timeLeft = 60;
-    const interval = setInterval(() => {
-        timeLeft--;
-        if (count) count.textContent = timeLeft + "s";
-        if (fill) fill.style.width = ((60 - timeLeft) / 60 * 100) + "%";
-        
-        if (timeLeft <= 0) {
-            clearInterval(interval);
-            overlay.style.opacity = '0';
-            setTimeout(() => {
-                overlay.style.display = 'none';
-                isProtecting = false;
-            }, 1000);
-        }
-    }, 1000);
+// --- ZENTRALE STEUERUNG ---
+function handlePressStart() {
+    isLongPress = false;
+    clickTimer = setTimeout(() => {
+        isLongPress = true;
+        toggleVideo(); // Das öffnet ODER schließt das Video
+    }, LONG_PRESS_DURATION);
 }
 
+function handlePressEnd() {
+    clearTimeout(clickTimer);
+    if (!isLongPress) {
+        // Nur Vollbild toggeln, wenn das Video gerade NICHT offen ist
+        const overlay = document.getElementById('videoOverlay');
+        if (!overlay.classList.contains('visible')) {
+            toggleFullscreen();
+        }
+    }
+}
+
+// Event Listener für die Uhr (mainContainer)
+mainContainer.addEventListener('mousedown', handlePressStart);
+mainContainer.addEventListener('mouseup', handlePressEnd);
+mainContainer.addEventListener('touchstart', handlePressStart, {passive: true});
+mainContainer.addEventListener('touchend', handlePressEnd);
+
+// NEU: Event Listener für das Video-Overlay (damit man auch dort rauskommt!)
+const videoOverlay = document.getElementById('videoOverlay');
+videoOverlay.addEventListener('mousedown', handlePressStart);
+videoOverlay.addEventListener('mouseup', handlePressEnd);
+videoOverlay.addEventListener('touchstart', handlePressStart, {passive: true});
+videoOverlay.addEventListener('touchend', handlePressEnd);
+
+function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+        if (helpHint) helpHint.classList.add('hidden');
+    } else {
+        if (document.exitFullscreen) {
+            document.exitFullscreen().catch(() => {});
+        }
+    }
+}
+
+// Event Listener für Maus und Touch
+mainContainer.addEventListener('mousedown', handlePressStart);
+mainContainer.addEventListener('mouseup', handlePressEnd);
+mainContainer.addEventListener('touchstart', (e) => {
+    // Verhindert bei manchen TVs das Kontextmenü
+    handlePressStart();
+}, {passive: true});
+mainContainer.addEventListener('touchend', handlePressEnd);
+
+// Tastatur-Support ("S") bleibt für PC-Nutzer erhalten
+document.addEventListener('keydown', (e) => {
+    if (e.key.toLowerCase() === 's') {
+        toggleVideo();
+    }
+});
+
+// --- ANALOGE UHR LOGIK ---
 function updateClock() {
-    checkOledProtection();
-    
     if (isProtecting) {
         requestAnimationFrame(updateClock);
         return;
@@ -100,19 +144,43 @@ function updateClock() {
 
     ctx.restore();
     digitalTimeEl.textContent = now.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+
+    // OLED Schutz Check (Jede volle Stunde)
+    if (now.getMinutes() === 0 && now.getSeconds() === 0 && !isProtecting) {
+        runOledProtection();
+    }
+
     requestAnimationFrame(updateClock);
 }
 
-mainContainer.addEventListener('click', () => {
-    if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen();
-        if (helpHint) helpHint.classList.add('hidden');
-    } else {
-        document.exitFullscreen();
+// --- OLED SCHUTZ ---
+function runOledProtection() {
+    isProtecting = true;
+    const overlay = document.getElementById('oledProtection');
+    const fill = document.getElementById('progressFill');
+    const count = document.getElementById('countdown');
+    
+    if (overlay) {
+        overlay.style.display = 'flex';
+        overlay.style.opacity = '1';
     }
-});
+    
+    let timeLeft = 60;
+    const interval = setInterval(() => {
+        timeLeft--;
+        if (count) count.textContent = timeLeft + "s";
+        if (fill) fill.style.width = ((60 - timeLeft) / 60 * 100) + "%";
+        
+        if (timeLeft <= 0) {
+            clearInterval(interval);
+            if (overlay) overlay.style.display = 'none';
+            isProtecting = false;
+        }
+    }, 1000);
+}
 
-function createSnow() {
+// --- SCHNEE EFFEKT ---
+setInterval(() => {
     if (isProtecting) return;
     const s = document.createElement('div');
     s.className = 'snowflake';
@@ -122,26 +190,16 @@ function createSnow() {
     s.style.animation = `fall ${dur}s linear forwards`;
     document.body.appendChild(s);
     setTimeout(() => s.remove(), dur * 1000);
-}
+}, 150);
 
+// --- START ---
 window.addEventListener('load', () => {
     setTimeout(() => {
-        document.getElementById('loadingScreen').style.opacity = '0';
-        setTimeout(() => document.getElementById('loadingScreen').style.display = 'none', 1000);
-    }, 1500);
-    setTimeout(() => { if (helpHint) helpHint.classList.add('hidden'); }, 10000);
-});
-
-setInterval(createSnow, 150);
-updateClock();
-
-document.addEventListener('keydown', (e) => {
-    if (e.key.toLowerCase() === 's') {
-        const overlay = document.getElementById('videoOverlay');
-        const iframe = document.getElementById('easterEggVideo');
-        overlay.classList.toggle('visible');
-        if (!overlay.classList.contains('visible')) {
-            const src = iframe.src; iframe.src = ""; iframe.src = src;
+        const ls = document.getElementById('loadingScreen');
+        if (ls) {
+            ls.style.opacity = '0';
+            setTimeout(() => ls.style.display = 'none', 1000);
         }
-    }
+    }, 1500);
+    updateClock();
 });
