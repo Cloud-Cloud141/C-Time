@@ -3,39 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>C-Time v1.5</title>
+    <title>C-Time v2.0</title>
     <link rel="stylesheet" href="style.css">
     <link rel="icon" type="image/png" href="CLOUD (1).png">
     <link rel="apple-touch-icon" href="CLOUD (1).png">
     <link rel="manifest" href="manifest.json">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;1,700&family=Quicksand:wght@300&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- EINGEBETTETE SCHRIFTARTEN --- */
+        /* Playfair Display (Italic 700) */
+        @font-face {
+          font-family: 'Playfair Display';
+          font-style: italic;
+          font-weight: 700;
+          font-display: swap;
+          src: url(https://fonts.gstatic.com/s/playfairdisplay/v40/nuFRD-vYSZviVYUb_rj3ij__anPXDTnCjmHKM4nYO7KN_k-UXtHA-Q.woff2) format('woff2');
+          unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+        }
+        /* Playfair Display (Normal 400) */
+        @font-face {
+          font-family: 'Playfair Display';
+          font-style: normal;
+          font-weight: 400;
+          font-display: swap;
+          src: url(https://fonts.gstatic.com/s/playfairdisplay/v40/nuFvD-vYSZviVYUb_rj3ij__anPXJzDwcbmjWBN2PKdFvXDXbtM.woff2) format('woff2');
+          unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+        }
+        /* Quicksand (Normal 300) */
+        @font-face {
+          font-family: 'Quicksand';
+          font-style: normal;
+          font-weight: 300;
+          font-display: swap;
+          src: url(https://fonts.gstatic.com/s/quicksand/v37/6xK-dSZaM9iE8KbpRA_LJ3z8mH9BOJvgkKEo58a-wg.woff2) format('woff2');
+          unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+        }
+    </style>
 </head>
 <body>
 
     <div id="loadingScreen">
         <div class="loader-gold"></div>
-        <p>Festliche Magie wird geladen...</p>
+        <p>Party wird vorbereitet...</p>
     </div>
 
     <div id="oledProtection" class="warning-overlay">
         <div class="warning-box">
-            <div class="warning-icon">⚠️</div>
-            <h2>Achtung</h2>
-            <p>Bitte warten...</p>
-            <p class="small">Neustart in gange...</p>
+            <div class="warning-icon">✨</div>
+            <h2>Neustart</h2>
+            <p>Automatischer Neustart in gange...</p>
             <div class="progress-bar"><div id="progressFill"></div></div>
             <div id="countdown">60s</div>
         </div>
     </div>
 
-    <div class="christmas-bg"></div>
+    <div class="party-bg"></div>
+    <div id="fireworkContainer"></div>
 
     <div class="clock-container" id="mainContainer">
         <div id="digitalTime">00:00</div>
         <div class="clock-frame">
             <canvas id="analogClock"></canvas>
         </div>
-        <div class="greeting">Frohe Weihnachten</div>
+        <div class="greeting">Frohes neues Jahr!</div>
         <div class="hint" id="helpHint">Klicken für Vollbild | 'S' für Video</div>
     </div>
 
@@ -47,6 +77,3 @@
     <script src="script.js"></script>
 </body>
 </html>
-
-
-
