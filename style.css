@@ -1,7 +1,8 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-    background: #04160a;
+    /* Hintergrund zu einem tiefen Mitternachtsblau geändert */
+    background: #00050a; 
     height: 100vh;
     display: flex;
     justify-content: center;
@@ -13,10 +14,11 @@ body {
     width: 100%;
 }
 
+/* Dynamischer Hintergrund-Glow */
 .christmas-bg {
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle at center, rgba(18, 69, 36, 0.4) 0%, transparent 70%);
+    background: radial-gradient(circle at center, rgba(30, 50, 100, 0.3) 0%, transparent 80%);
     z-index: 1;
 }
 
@@ -28,19 +30,20 @@ body {
 }
 
 #digitalTime {
-    font-size: 1.2rem;
+    font-size: 1.4rem;
     letter-spacing: 0.6rem;
-    color: rgba(243, 207, 122, 0.5);
+    color: #ffffff;
+    text-shadow: 0 0 10px rgba(255,255,255,0.5);
     margin-bottom: 15px;
 }
 
 .clock-frame {
     position: relative;
     padding: 20px;
-    background: rgba(255, 255, 255, 0.02);
+    background: rgba(255, 255, 255, 0.05);
     border-radius: 50%;
-    border: 1px solid rgba(243, 207, 122, 0.3);
-    box-shadow: 0 0 80px rgba(0,0,0,0.6);
+    border: 2px solid rgba(243, 207, 122, 0.4);
+    box-shadow: 0 0 50px rgba(243, 207, 122, 0.1), inset 0 0 20px rgba(0,0,0,0.5);
 }
 
 #analogClock {
@@ -54,84 +57,66 @@ body {
 .greeting {
     font-family: 'Playfair Display', serif;
     font-style: italic;
-    font-size: 2.2rem;
+    font-size: 2.8rem;
     margin-top: 25px;
-    background: linear-gradient(to bottom, #f3cf7a, #b38b3d);
+    background: linear-gradient(to bottom, #ffffff, #f3cf7a, #b38b3d);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 10px rgba(243, 207, 122, 0.3));
 }
 
-.hint {
-    font-size: 0.7rem;
-    margin-top: 15px;
-    opacity: 0.4;
-    transition: opacity 2s ease;
+/* Feuerwerk Partikel Styles */
+.particle {
+    position: fixed;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 5;
+    /* Leuchteffekt für die Funken */
+    box-shadow: 0 0 10px currentColor; 
+}
+/* Die aufsteigende Rakete */
+.rocket {
+    position: fixed;
+    width: 2px;
+    height: 20px;
+    background: linear-gradient(to top, transparent, #fff);
+    box-shadow: 0 0 10px #fff;
+    border-radius: 2px;
+    pointer-events: none;
+    z-index: 6;
 }
 
+/* Die Explosions-Partikel */
+.particle {
+    position: fixed;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 5;
+    /* Nutzt die im JS gesetzte Farbe für das Glühen */
+    box-shadow: 0 0 10px currentColor; 
+}
+@keyframes explode {
+    0% { transform: translate(0, 0) scale(1); opacity: 1; }
+    100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+}
+
+/* Der Rest bleibt gleich (OLED Schutz, Video, etc.) */
+.hint { font-size: 0.7rem; margin-top: 15px; opacity: 0.4; transition: opacity 2s ease; }
 .hint.hidden { opacity: 0; pointer-events: none; }
 
-/* OLED Warnung Styles */
-.warning-overlay {
-    position: fixed;
-    inset: 0;
-    background: #000;
-    z-index: 4000;
-    display: none;
-    justify-content: center;
-    align-items: center;
-    color: #f3cf7a;
-    text-align: center;
-    transition: opacity 1s ease;
-}
+.warning-overlay { position: fixed; inset: 0; background: #000; z-index: 4000; display: none; justify-content: center; align-items: center; color: #f3cf7a; text-align: center; }
+.warning-box { padding: 40px; border: 1px solid rgba(243, 207, 122, 0.2); background: #050505; }
+.progress-bar { width: 300px; height: 2px; background: #111; margin: 25px auto; position: relative; }
+#progressFill { position: absolute; left: 0; height: 100%; width: 0%; background: #f3cf7a; }
 
-.warning-box {
-    padding: 40px;
-    border: 1px solid rgba(243, 207, 122, 0.2);
-    background: #050505;
-}
-
-.warning-icon { font-size: 3rem; margin-bottom: 15px; }
-
-.progress-bar {
-    width: 300px;
-    height: 2px;
-    background: #111;
-    margin: 25px auto;
-    position: relative;
-}
-
-#progressFill {
-    position: absolute;
-    left: 0; height: 100%; width: 0%;
-    background: #f3cf7a;
-}
-
-/* Schnee & Video */
-.snowflake { position: fixed; top: -10px; color: white; pointer-events: none; z-index: 5; }
-@keyframes fall { to { transform: translateY(110vh) rotate(360deg); opacity: 0; } }
-
-#loadingScreen {
-    position: fixed;
-    inset: 0;
-    background: #04160a;
-    z-index: 2000;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    transition: opacity 1s ease;
-}
-
-.loader-gold {
-    width: 40px; height: 40px; border-left: 2px solid #f3cf7a;
-    border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px;
-}
+#loadingScreen { position: fixed; inset: 0; background: #00050a; z-index: 2000; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+.loader-gold { width: 40px; height: 40px; border-left: 2px solid #f3cf7a; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
 @keyframes spin { 100% { transform: rotate(360deg); } }
 
-.video-overlay {
-    position: fixed; inset: 0; background: black; z-index: 3000;
-    display: none; flex-direction: column; justify-content: center; align-items: center;
-}
+.video-overlay { position: fixed; inset: 0; background: black; z-index: 3000; display: none; flex-direction: column; justify-content: center; align-items: center; }
 .video-overlay.visible { display: flex; }
 #easterEggVideo { width: 85%; height: 75%; border: 1px solid #f3cf7a; }
-.close-btn { color: #f3cf7a; margin-top: 20px; font-size: 0.9rem; opacity: 0.6; }
