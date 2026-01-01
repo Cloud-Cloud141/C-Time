@@ -7,7 +7,7 @@ const helpHint = document.getElementById('helpHint');
 let isProtecting = false;
 let clickTimer; 
 let isLongPress = false;
-const LONG_PRESS_DURATION = 3000; // 3 Sekunden für das Video
+const LONG_PRESS_DURATION = 3000; 
 
 // --- VIDEO STEUERUNG ---
 function toggleVideo() {
@@ -17,7 +17,6 @@ function toggleVideo() {
 
     const isVisible = overlay.classList.toggle('visible');
     
-    // Video stoppen, wenn Overlay geschlossen wird
     if (!isVisible && iframe) {
         const src = iframe.src; 
         iframe.src = ""; 
@@ -30,33 +29,33 @@ function handlePressStart() {
     isLongPress = false;
     clickTimer = setTimeout(() => {
         isLongPress = true;
-        toggleVideo(); // Das öffnet ODER schließt das Video
+        toggleVideo(); 
     }, LONG_PRESS_DURATION);
 }
 
 function handlePressEnd() {
     clearTimeout(clickTimer);
     if (!isLongPress) {
-        // Nur Vollbild toggeln, wenn das Video gerade NICHT offen ist
         const overlay = document.getElementById('videoOverlay');
-        if (!overlay.classList.contains('visible')) {
+        if (!overlay || !overlay.classList.contains('visible')) {
             toggleFullscreen();
         }
     }
 }
 
-// Event Listener für die Uhr (mainContainer)
+// Event Listener
 mainContainer.addEventListener('mousedown', handlePressStart);
 mainContainer.addEventListener('mouseup', handlePressEnd);
 mainContainer.addEventListener('touchstart', handlePressStart, {passive: true});
 mainContainer.addEventListener('touchend', handlePressEnd);
 
-// NEU: Event Listener für das Video-Overlay (damit man auch dort rauskommt!)
 const videoOverlay = document.getElementById('videoOverlay');
-videoOverlay.addEventListener('mousedown', handlePressStart);
-videoOverlay.addEventListener('mouseup', handlePressEnd);
-videoOverlay.addEventListener('touchstart', handlePressStart, {passive: true});
-videoOverlay.addEventListener('touchend', handlePressEnd);
+if (videoOverlay) {
+    videoOverlay.addEventListener('mousedown', handlePressStart);
+    videoOverlay.addEventListener('mouseup', handlePressEnd);
+    videoOverlay.addEventListener('touchstart', handlePressStart, {passive: true});
+    videoOverlay.addEventListener('touchend', handlePressEnd);
+}
 
 function toggleFullscreen() {
     if (!document.fullscreenElement) {
@@ -69,23 +68,13 @@ function toggleFullscreen() {
     }
 }
 
-// Event Listener für Maus und Touch
-mainContainer.addEventListener('mousedown', handlePressStart);
-mainContainer.addEventListener('mouseup', handlePressEnd);
-mainContainer.addEventListener('touchstart', (e) => {
-    // Verhindert bei manchen TVs das Kontextmenü
-    handlePressStart();
-}, {passive: true});
-mainContainer.addEventListener('touchend', handlePressEnd);
-
-// Tastatur-Support ("S") bleibt für PC-Nutzer erhalten
 document.addEventListener('keydown', (e) => {
     if (e.key.toLowerCase() === 's') {
         toggleVideo();
     }
 });
 
-// --- ANALOGE UHR LOGIK ---
+// --- ANALOGE UHR LOGIK (FARBENFROH) ---
 function updateClock() {
     if (isProtecting) {
         requestAnimationFrame(updateClock);
@@ -108,13 +97,14 @@ function updateClock() {
 
     ctx.clearRect(0, 0, size, size);
 
-    // Zifferblatt Indizes
+    // Zifferblatt (Bunte Indizes)
     for (let i = 0; i < 60; i++) {
         const angle = (i * Math.PI) / 30;
         const isHour = i % 5 === 0;
         ctx.beginPath();
-        ctx.strokeStyle = isHour ? '#f3cf7a' : 'rgba(243, 207, 122, 0.2)';
-        ctx.lineWidth = isHour ? 2 : 1;
+        // Wechselnde Farben für die Stunden-Markierungen
+        ctx.strokeStyle = isHour ? `hsl(${i * 6}, 70%, 60%)` : 'rgba(255, 255, 255, 0.1)';
+        ctx.lineWidth = isHour ? 3 : 1;
         ctx.moveTo(center + radius * Math.cos(angle), center + radius * Math.sin(angle));
         ctx.lineTo(center + (radius - (isHour ? 15 : 6)) * Math.cos(angle), center + (radius - (isHour ? 15 : 6)) * Math.sin(angle));
         ctx.stroke();
@@ -130,22 +120,28 @@ function updateClock() {
         ctx.lineWidth = width;
         ctx.lineCap = 'round';
         ctx.strokeStyle = color;
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = color;
         ctx.moveTo(center, center);
         ctx.lineTo(center + length * Math.cos(angle), center + length * Math.sin(angle));
         ctx.stroke();
+        ctx.shadowBlur = 0; // Schatten zurücksetzen
     };
 
-    drawHand((h * Math.PI / 6) - Math.PI / 2, radius * 0.5, 4, '#f3cf7a');
-    drawHand((m * Math.PI / 30) - Math.PI / 2, radius * 0.8, 2, '#f3cf7a');
-    drawHand((s * Math.PI / 30) - Math.PI / 2, radius * 0.85, 1, '#ff4757');
+    // Bunte Neon-Zeiger
+    drawHand((h * Math.PI / 6) - Math.PI / 2, radius * 0.5, 6, '#ffa502'); // Gold-Orange
+    drawHand((m * Math.PI / 30) - Math.PI / 2, radius * 0.8, 4, '#00d2ff'); // Cyan
+    drawHand((s * Math.PI / 30) - Math.PI / 2, radius * 0.85, 2, '#ff007f'); // Neon-Pink
 
-    ctx.beginPath(); ctx.arc(center, center, 4, 0, Math.PI * 2);
-    ctx.fillStyle = '#f3cf7a'; ctx.fill();
+    // Mittelpunkt
+    ctx.beginPath(); ctx.arc(center, center, 5, 0, Math.PI * 2);
+    ctx.fillStyle = '#ffffff'; ctx.fill();
 
     ctx.restore();
-    digitalTimeEl.textContent = now.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+    
+    // Digitalzeit mit Sekunden (wichtig für Mitternacht!)
+    digitalTimeEl.textContent = now.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
-    // OLED Schutz Check (Jede volle Stunde)
     if (now.getMinutes() === 0 && now.getSeconds() === 0 && !isProtecting) {
         runOledProtection();
     }
@@ -179,21 +175,123 @@ function runOledProtection() {
     }, 1000);
 }
 
-// --- SCHNEE EFFEKT ---
-setInterval(() => {
-    if (isProtecting) return;
-    const s = document.createElement('div');
-    s.className = 'snowflake';
-    s.innerHTML = '•';
-    s.style.left = Math.random() * 100 + 'vw';
-    const dur = Math.random() * 3 + 6;
-    s.style.animation = `fall ${dur}s linear forwards`;
-    document.body.appendChild(s);
-    setTimeout(() => s.remove(), dur * 1000);
-}, 150);
+// --- FEUERWERK EFFEKT (Silvester-Style) ---
+function launchFirework() {
+    if (isProtecting || document.hidden) return;
+
+    const colors = ['#FF004D', '#00FFF5', '#00FF9C', '#FFEB3B', '#FF5722'];
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    const x = Math.random() * 100;
+    const y = Math.random() * 60; // Nur obere 60% des Bildschirms
+
+    for (let i = 0; i < 20; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle'; // Achte darauf, dass .particle im CSS existiert
+        p.style.backgroundColor = color;
+        p.style.left = x + 'vw';
+        p.style.top = y + 'vh';
+        p.style.position = 'fixed';
+        p.style.width = '4px';
+        p.style.height = '4px';
+        p.style.borderRadius = '50%';
+        p.style.boxShadow = `0 0 10px ${color}`;
+        p.style.pointerEvents = 'none';
+        p.style.zIndex = '5';
+
+        const angle = Math.random() * Math.PI * 2;
+        const velocity = Math.random() * 100 + 50;
+        const tx = Math.cos(angle) * velocity;
+        const ty = Math.sin(angle) * velocity;
+
+        document.body.appendChild(p);
+
+        p.animate([
+            { transform: 'translate(0, 0) scale(1)', opacity: 1 },
+            { transform: `translate(${tx}px, ${ty}px) scale(0)`, opacity: 0 }
+        ], {
+            duration: 1000 + Math.random() * 500,
+            easing: 'cubic-bezier(0, .9, .57, 1)'
+        }).onfinish = () => p.remove();
+    }
+}
+function launchFirework() {
+    if (isProtecting || document.hidden) return;
+
+    // Start- und Zielposition berechnen
+    const startX = Math.random() * 100; // Startpunkt unten (0-100vw)
+    const targetY = Math.random() * 40 + 10; // Zielhöhe oben (10-50vh)
+    const drift = (Math.random() - 0.5) * 10; // Leichter Seitwärtsdrift für Realismus
+    
+    const colors = ['#FF004D', '#00FFF5', '#00FF9C', '#FFEB3B', '#FF5722', '#ffffff'];
+    const color = colors[Math.floor(Math.random() * colors.length)];
+
+    // Raketen-Element erstellen
+    const rocket = document.createElement('div');
+    rocket.className = 'rocket';
+    rocket.style.left = startX + 'vw';
+    rocket.style.bottom = '0vh'; 
+    document.body.appendChild(rocket);
+
+    // Aufstieg-Animation
+    const flight = rocket.animate([
+        { transform: 'translateY(0) rotate(0deg)', opacity: 1 },
+        { transform: `translateY(-${100 - targetY}vh) translateX(${drift}vw) rotate(${drift * 2}deg)`, opacity: 0.5 }
+    ], {
+        duration: 1000 + Math.random() * 500,
+        easing: 'ease-out' // Wird oben langsamer
+    });
+
+    // Wenn die Rakete den Zielpunkt erreicht
+    flight.onfinish = () => {
+        rocket.remove();
+        createExplosion(startX + drift, targetY, color);
+    };
+}
+
+function createExplosion(x, y, color) {
+    const particles = 30;
+    for (let i = 0; i < particles; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        p.style.backgroundColor = color;
+        p.style.color = color; // Für den Box-Shadow
+        p.style.left = x + 'vw';
+        p.style.top = y + 'vh';
+
+        // Explosion in alle Richtungen
+        const angle = Math.random() * Math.PI * 2;
+        const velocity = Math.random() * 150 + 50;
+        const tx = Math.cos(angle) * velocity;
+        const ty = Math.sin(angle) * velocity;
+
+        document.body.appendChild(p);
+
+        p.animate([
+            { transform: 'translate(0, 0) scale(1.5)', opacity: 1 },
+            { transform: `translate(${tx}px, ${ty}px) scale(0)`, opacity: 0 }
+        ], {
+            duration: 1200 + Math.random() * 800,
+            easing: 'cubic-bezier(0, .9, .57, 1)'
+        }).onfinish = () => p.remove();
+    }
+}
+
+// Alle 1,5 bis 3 Sekunden eine Rakete starten
+const fireworkLoop = () => {
+    launchFirework();
+    setTimeout(fireworkLoop, Math.random() * 1500 + 1500);
+};
+fireworkLoop();
+// Alle 2 Sekunden ein Feuerwerk zünden
+setInterval(launchFirework, 2000);
 
 // --- START ---
 window.addEventListener('load', () => {
+    // Hilfe-Hinweis nach 6 Sekunden automatisch ausblenden
+    setTimeout(() => {
+        if (helpHint) helpHint.classList.add('hidden');
+    }, 6000);
+
     setTimeout(() => {
         const ls = document.getElementById('loadingScreen');
         if (ls) {
